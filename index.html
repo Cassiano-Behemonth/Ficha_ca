@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha RPG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4CAF50;
+            --primary-light: #81C784;
+            --primary-dark: #388E3C;
+            --bg: #000000;
+            --surface: #121212;
+            --surface-variant: #1E1E1E;
+            --text: #4CAF50;
+            --text-secondary: #81C784;
+            --error: #EF5350;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .theme-selector h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .theme-selector p {
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        .theme-grid {
+            display: grid;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .theme-card {
+            background: #2A2A2A;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .theme-card.selected {
+            border-color: var(--primary);
+        }
+
+        .theme-info h3 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .theme-info p {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .theme-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            background: var(--surface);
+            border-radius: 8px 8px 0 0;
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .tab {
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            background: var(--surface-variant);
+            border: 1px solid var(--primary-dark);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .input-row {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        /* Atributos */
+        .atributos-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .atributo-field {
+            text-align: center;
+        }
+
+        .atributo-field label {
+            font-size: 0.8em;
+            margin-bottom: 4px;
+        }
+
+        .atributo-field input {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 8px;
+        }
+
+        /* Recursos */
+        .recursos-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: black;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background: var(--surface-variant);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Dice Roller */
+        .dice-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .dice-buttons .btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 8px;
+        }
+
+        .custom-dice {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .custom-dice input {
+            flex: 1;
+        }
+
+        .roll-history {
+            margin-top: 16px;
+        }
+
+        .roll-item {
+            padding: 8px;
+            margin-bottom: 4px;
+            background: var(--surface-variant);
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        /* Perícias */
+        .pericia-item {
+            background: var(--surface-variant);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pericia-item.trained {
+            background: var(--primary-dark);
+        }
+
+        .pericia-info {
+            flex: 1;
+        }
+
+        .pericia-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .pericia-attr {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .pericia-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pericia-bonus {
+            width: 60px;
+            padding: 6px;
+            text-align: center;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Items */
+        .item-card {
+            background: var(--surface-variant);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 8px;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .item-title {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .item-qty {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 20px;
+            padding: 4px;
+        }
+
+        .icon-btn.danger {
+            color: var(--error);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* Dice Animation Modal */
+        .dice-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dice-modal.active {
+            display: flex;
+        }
+
+        .dice-result {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .dice-number {
+            font-size: 80px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .dice-label {
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: black;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 3000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--surface-variant);
+            border-radius: 8px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .empty-state-text {
+            color: var(--text-secondary);
+        }
+
+        /* Responsivo */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .atributos-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .dice-buttons {
+                flex-wrap: wrap;
+            }
+
+            .dice-buttons .btn {
+                min-width: 50px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Selector Screen -->
+    <div id="themeSelectorScreen" class="theme-selector">
+        <h1>Escolha o Tema</h1>
+        <p>Selecione as cores do aplicativo</p>
+        <div class="theme-grid">
+            <div class="theme-card" data-theme="green-black">
+                <div class="theme-info">
+                    <h3>Verde e Preto</h3>
+                    <p>Tema padrão</p>
+                </div>
+                <div class="theme-preview" style="background: #000; border-color: #4CAF50; color: #4CAF50;">A</div>
+            </div>
+            <div class="theme-card" data-theme="red-white">
+                <div class="theme-info">
+                    <h3>Vermelho e Branco</h3>
+                    <p>Contraste claro</p>
+                </div>
+                <div class="theme-preview" style="background: #FFF; border-color: #E53935; color: #E53935;">A</div>
+            </div>
+            <div class="theme-card" data-theme="gold-black">
+                <div class="theme-info">
+                    <h3>Dourado e Preto</h3>
+                    <p>Elegante</p>
+                </div>
+                <div class="theme-preview" style="background: #000; border-color: #FFC107; color: #FFC107;">A</div>
+            </div>
+            <div class="theme-card" data-theme="purple-black">
+                <div class="theme-info">
+                    <h3>Roxo e Preto</h3>
+                    <p>Misterioso</p>
+                </div>
+                <div class="theme-preview" style="background: #000; border-color: #9C27B0; color: #9C27B0;">A</div>
+            </div>
+            <div class="theme-card" data-theme="blue-white">
+                <div class="theme-info">
+                    <h3>Azul e Branco</h3>
+                    <p>Limpo e claro</p>
+                </div>
+                <div class="theme-preview" style="background: #FFF; border-color: #2196F3; color: #2196F3;">A</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="mainApp" class="hidden">
+        <div class="container">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="ficha">Ficha</button>
+                <button class="tab" data-tab="pericias">Perícias</button>
+                <button class="tab" data-tab="inventario">Inventário</button>
+                <button class="tab" data-tab="descricao">Descrição</button>
+            </div>
+
+            <!-- Ficha Tab -->
+            <div class="tab-content active" data-content="ficha">
+                <div class="card">
+                    <div class="card-title">▸ NOME DO PERSONAGEM</div>
+                    <input type="text" id="nomePersonagem" placeholder="Digite o nome do personagem">
+                </div>
+
+                <div class="card">
+                    <div class="card-title">▸ ATRIBUTOS</div>
+                    <div class="atributos-grid">
+                        <div class="atributo-field">
+                            <label>FORÇA</label>
+                            <input type="number" id="forca" min="0" max="99">
+                        </div>
+                        <div class="atributo-field">
+                            <label>AGILIDADE</label>
+                            <input type="number" id="agilidade" min="0" max="99">
+                        </div>
+                        <div class="atributo-field">
+                            <label>PRESENÇA</label>
+                            <input type="number" id="presenca" min="0" max="99">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">▸ RECURSOS</div>
+                    <div class="recursos-grid">
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>PV Atual</label>
+                                <input type="number" id="vidaAtual" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label>PV Máx</label>
+                                <input type="number" id="vidaMax" min="0">
+                            </div>
+                        </div>
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>SAN Atual</label>
+                                <input type="number" id="sanidadeAtual" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label>SAN Máx</label>
+                                <input type="number" id="sanidadeMax" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>NEX (%)</label>
+                            <input type="number" id="nex" min="0" max="100" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">▸ ROLAGEM DE DADOS</div>
+                    <div class="dice-buttons">
+                        <button class="btn btn-primary btn-small" onclick="rollDice(4)">d4</button>
+                        <button class="btn btn-primary btn-small" onclick="rollDice(6)">d6</button>
+                        <button class="btn btn-primary btn-small" onclick="rollDice(8)">d8</button>
+                        <button class="btn btn-primary btn-small" onclick="rollDice(10)">d10</button>
+                        <button class="btn btn-primary btn-small" onclick="rollDice(12)">d12</button>
+                        <button class="btn btn-primary btn-small" onclick="rollDice(20)">d20</button>
+                    </div>
+                    <div class="custom-dice">
+                        <input type="text" id="customDice" placeholder="Ex: 2d6+3">
+                        <button class="btn btn-primary btn-small" onclick="rollCustomDice()">Rolar</button>
+                    </div>
+                    <div class="roll-history" id="rollHistory"></div>
+                </div>
+
+                <button class="btn btn-primary" onclick="saveData()">💾 SALVAR MANUALMENTE</button>
+                <p style="text-align: center; margin: 16px 0; font-size: 0.9em; color: var(--text-secondary);">
+                    Salvamento automático ativado
+                </p>
+                <button class="btn btn-secondary" onclick="showThemeSelector()">🎨 TROCAR TEMA</button>
+            </div>
+
+            <!-- Perícias Tab -->
+            <div class="tab-content" data-content="pericias">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <h2 style="font-size: 1.3em; margin-bottom: 4px;">▸ PERÍCIAS</h2>
+                        <p style="font-size: 0.9em; color: var(--text-secondary);" id="periciaCount">0 perícia(s)</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-small" id="btnPadraoPericias" onclick="addDefaultPericias()">Padrão</button>
+                        <button class="btn btn-primary btn-small" onclick="showAddPericiaModal()">+ Nova</button>
+                    </div>
+                </div>
+                <div id="periciasList"></div>
+            </div>
+
+            <!-- Inventário Tab -->
+            <div class="tab-content" data-content="inventario">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <h2 style="font-size: 1.3em; margin-bottom: 4px;">▸ INVENTÁRIO</h2>
+                        <p style="font-size: 0.9em; color: var(--text-secondary);" id="itemCount">0 item(ns)</p>
+                    </div>
+                    <button class="btn btn-primary btn-small" onclick="showAddItemModal()">+ Adicionar</button>
+                </div>
+                <div id="itemsList"></div>
+            </div>
+
+            <!-- Descrição Tab -->
+            <div class="tab-content" data-content="descricao">
+                <h2 style="font-size: 1.3em; margin-bottom: 16px;">▸ DESCRIÇÃO DO PERSONAGEM</h2>
+                
+                <div class="card">
+                    <div class="card-title">INFORMAÇÕES BÁSICAS</div>
+                    <div class="form-group">
+                        <label>Nome do Personagem</label>
+                        <input type="text" id="descNome">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Jogador</label>
+                        <input type="text" id="jogador">
+                    </div>
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Origem</label>
+                            <input type="text" id="origem">
+                        </div>
+                        <div class="form-group">
+                            <label>Classe</label>
+                            <input type="text" id="classe">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Trilha</label>
+                            <input type="text" id="trilha">
+                        </div>
+                        <div class="form-group">
+                            <label>Patente</label>
+                            <input type="text" id="patente">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">APARÊNCIA</div>
+                    <textarea id="aparencia" placeholder="Descreva a aparência física do personagem..."></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">PERSONALIDADE</div>
+                    <textarea id="personalidade" placeholder="Descreva a personalidade e comportamento..."></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">HISTÓRIA</div>
+                    <textarea id="historia" placeholder="Conte o passado do personagem..." style="min-height: 150px;"></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">ANOTAÇÕES</div>
+                    <textarea id="anotacoes" placeholder="Anotações gerais, objetivos, contatos..." style="min-height: 150px;"></textarea>
+                </div>
+
+                <button class="btn btn-primary" onclick="saveData()">💾 SALVAR DESCRIÇÃO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Perícia -->
+    <div class="modal" id="periciaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="periciaModalTitle">Adicionar Perícia</h3>
+                <button class="close-btn" onclick="closePericiaModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>Nome da Perícia</label>
+                <input type="text" id="periciaNome">
+            </div>
+            <div class="form-group">
+                <label>Atributo</label>
+                <select id="periciaAtributo">
+                    <option value="FOR">FOR</option>
+                    <option value="AGI">AGI</option>
+                    <option value="PRE">PRE</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closePericiaModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="savePericias()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Item -->
+    <div class="modal" id="itemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="itemModalTitle">Adicionar Item</h3>
+                <button class="close-btn" onclick="closeItemModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>Nome do Item</label>
+                <input type="text" id="itemNome">
+            </div>
+            <div class="form-group">
+                <label>Quantidade</label>
+                <input type="text" id="itemQuantidade" value="1">
+            </div>
+            <div class="form-group">
+                <label>Descrição (opcional)</label>
+                <textarea id="itemDescricao" rows="4"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeItemModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveItem()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dice Animation Modal -->
+    <div class="dice-modal" id="diceModal">
+        <div class="dice-result">
+            <div class="dice-number" id="diceNumber">20</div>
+            <div class="dice-label" id="diceLabel">d20</div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Theme colors
+        const themes = {
+            'green-black': {
+                primary: '#4CAF50',
+                primaryLight: '#81C784',
+                primaryDark: '#388E3C',
+                bg: '#000000',
+                surface: '#121212',
+                surfaceVariant: '#1E1E1E',
+                text: '#4CAF50',
+                textSecondary: '#81C784'
+            },
+            'red-white': {
+                primary: '#E53935',
+                primaryLight: '#EF5350',
+                primaryDark: '#C62828',
+                bg: '#FAFAFA',
+                surface: '#FFFFFF',
+                surfaceVariant: '#F5F5F5',
+                text: '#E53935',
+                textSecondary: '#424242'
+            },
+            'gold-black': {
+                primary: '#FFC107',
+                primaryLight: '#FFD54F',
+                primaryDark: '#FFA000',
+                bg: '#000000',
+                surface: '#121212',
+                surfaceVariant: '#1E1E1E',
+                text: '#FFC107',
+                textSecondary: '#FFD54F'
+            },
+            'purple-black': {
+                primary: '#9C27B0',
+                primaryLight: '#BA68C8',
+                primaryDark: '#7B1FA2',
+                bg: '#000000',
+                surface: '#121212',
+                surfaceVariant: '#1E1E1E',
+                text: '#9C27B0',
+                textSecondary: '#BA68C8'
+            },
+            'blue-white': {
+                primary: '#2196F3',
+                primaryLight: '#64B5F6',
+                primaryDark: '#1976D2',
+                bg: '#FAFAFA',
+                surface: '#FFFFFF',
+                surfaceVariant: '#F5F5F5',
+                text: '#2196F3',
+                textSecondary: '#424242'
+            }
+        };
+
+        // State
+        let currentTheme = 'green-black';
+        let editingPericiaId = null;
+        let editingItemId = null;
+        let rollHistory = [];
+        let pericias = [];
+        let items = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            setupTabs();
+            setupThemeSelector();
+            setupAutoSave();
+            
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+                document.getElementById('themeSelectorScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+            }
+        });
+
+        // Theme Functions
+        function setupThemeSelector() {
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const theme = this.dataset.theme;
+                    selectTheme(theme);
+                });
+            });
+        }
+
+        function selectTheme(theme) {
+            applyTheme(theme);
+            localStorage.setItem('theme', theme);
+            document.getElementById('themeSelectorScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+        }
+
+        function applyTheme(theme) {
+            currentTheme = theme;
+            const colors = themes[theme];
+            const root = document.documentElement;
+            
+            root.style.setProperty('--primary', colors.primary);
+            root.style.setProperty('--primary-light', colors.primaryLight);
+            root.style.setProperty('--primary-dark', colors.primaryDark);
+            root.style.setProperty('--bg', colors.bg);
+            root.style.setProperty('--surface', colors.surface);
+            root.style.setProperty('--surface-variant', colors.surfaceVariant);
+            root.style.setProperty('--text', colors.text);
+            root.style.setProperty('--text-secondary', colors.textSecondary);
+
+            // Update selected theme card
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.theme === theme);
+            });
+        }
+
+        function showThemeSelector() {
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('themeSelectorScreen').classList.remove('hidden');
+        }
+
+        // Tab Functions
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    switchTab(tabName);
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('active', content.dataset.content === tabName);
+            });
+
+            // Load specific tab data
+            if (tabName === 'pericias') {
+                renderPericias();
+            } else if (tabName === 'inventario') {
+                renderItems();
+            }
+        }
+
+        // Data Functions
+        function saveData() {
+            const data = {
+                // Ficha básica
+                nome: document.getElementById('nomePersonagem').value,
+                forca: document.getElementById('forca').value,
+                agilidade: document.getElementById('agilidade').value,
+                presenca: document.getElementById('presenca').value,
+                nex: document.getElementById('nex').value,
+                vidaAtual: document.getElementById('vidaAtual').value,
+                vidaMax: document.getElementById('vidaMax').value,
+                sanidadeAtual: document.getElementById('sanidadeAtual').value,
+                sanidadeMax: document.getElementById('sanidadeMax').value,
+                
+                // Descrição
+                jogador: document.getElementById('jogador').value,
+                origem: document.getElementById('origem').value,
+                classe: document.getElementById('classe').value,
+                trilha: document.getElementById('trilha').value,
+                patente: document.getElementById('patente').value,
+                aparencia: document.getElementById('aparencia').value,
+                personalidade: document.getElementById('personalidade').value,
+                historia: document.getElementById('historia').value,
+                anotacoes: document.getElementById('anotacoes').value,
+                
+                // Listas
+                pericias: pericias,
+                items: items,
+                rollHistory: rollHistory
+            };
+
+            localStorage.setItem('fichaRPG', JSON.stringify(data));
+            showToast('✓ Dados salvos com sucesso!');
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('fichaRPG');
+            if (!saved) return;
+
+            const data = JSON.parse(saved);
+
+            // Load basic data
+            document.getElementById('nomePersonagem').value = data.nome || '';
+            document.getElementById('forca').value = data.forca || '';
+            document.getElementById('agilidade').value = data.agilidade || '';
+            document.getElementById('presenca').value = data.presenca || '';
+            document.getElementById('nex').value = data.nex || '5';
+            document.getElementById('vidaAtual').value = data.vidaAtual || '';
+            document.getElementById('vidaMax').value = data.vidaMax || '';
+            document.getElementById('sanidadeAtual').value = data.sanidadeAtual || '';
+            document.getElementById('sanidadeMax').value = data.sanidadeMax || '';
+            
+            // Load description
+            document.getElementById('descNome').value = data.nome || '';
+            document.getElementById('jogador').value = data.jogador || '';
+            document.getElementById('origem').value = data.origem || '';
+            document.getElementById('classe').value = data.classe || '';
+            document.getElementById('trilha').value = data.trilha || '';
+            document.getElementById('patente').value = data.patente || '';
+            document.getElementById('aparencia').value = data.aparencia || '';
+            document.getElementById('personalidade').value = data.personalidade || '';
+            document.getElementById('historia').value = data.historia || '';
+            document.getElementById('anotacoes').value = data.anotacoes || '';
+
+            // Load lists
+            pericias = data.pericias || [];
+            items = data.items || [];
+            rollHistory = data.rollHistory || [];
+
+            renderPericias();
+            renderItems();
+            renderRollHistory();
+        }
+
+        function setupAutoSave() {
+            // Auto-save every 2 seconds when user types
+            let saveTimeout;
+            document.querySelectorAll('input, textarea').forEach(element => {
+                element.addEventListener('input', function() {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        saveData();
+                    }, 2000);
+                });
+            });
+
+            // Sync nome between tabs
+            document.getElementById('nomePersonagem').addEventListener('input', function() {
+                document.getElementById('descNome').value = this.value;
+            });
+            document.getElementById('descNome').addEventListener('input', function() {
+                document.getElementById('nomePersonagem').value = this.value;
+            });
+        }
+
+        // Dice Functions
+        function rollDice(faces) {
+            const result = Math.floor(Math.random() * faces) + 1;
+            showDiceAnimation(result, faces);
+            addToRollHistory(`d${faces} = ${result}`);
+        }
+
+        function rollCustomDice() {
+            const expr = document.getElementById('customDice').value.trim();
+            const result = parseCustomDice(expr);
+            
+            if (result) {
+                showDiceAnimation(result.total, 20);
+                addToRollHistory(result.text);
+            }
+        }
+
+        function parseCustomDice(expr) {
+            const regex = /(\d+)d(\d+)([+\-*/]\d+)?/i;
+            const match = expr.match(regex);
+            
+            if (!match) return null;
+
+            const qty = parseInt(match[1]);
+            const faces = parseInt(match[2]);
+            const modStr = match[3] || '';
+
+            const rolls = [];
+            for (let i = 0; i < qty; i++) {
+                rolls.push(Math.floor(Math.random() * faces) + 1);
+            }
+
+            const maxRoll = Math.max(...rolls);
+            let total = maxRoll;
+
+            if (modStr) {
+                const op = modStr[0];
+                const value = parseInt(modStr.substring(1));
+
+                switch(op) {
+                    case '+': total += value; break;
+                    case '-': total -= value; break;
+                    case '*': total *= value; break;
+                    case '/': total = Math.floor(total / value); break;
+                }
+            }
+
+            const text = qty > 1 
+                ? `dados: ${rolls.join(', ')}${modStr} = ${total}`
+                : `dado: ${maxRoll}${modStr}${modStr ? ` = ${total}` : ''}`;
+
+            return { total, text };
+        }
+
+        function showDiceAnimation(result, faces) {
+            const modal = document.getElementById('diceModal');
+            document.getElementById('diceNumber').textContent = result;
+            document.getElementById('diceLabel').textContent = `d${faces}`;
+            
+            modal.classList.add('active');
+            
+            setTimeout(() => {
+                modal.classList.remove('active');
+            }, 1500);
+        }
+
+        function addToRollHistory(text) {
+            rollHistory.unshift(text);
+            if (rollHistory.length > 5) rollHistory.pop();
+            renderRollHistory();
+            saveData();
+        }
+
+        function renderRollHistory() {
+            const container = document.getElementById('rollHistory');
+            if (rollHistory.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="font-size: 0.9em; font-weight: bold; margin-bottom: 8px;">Últimas Rolagens:</div>
+                ${rollHistory.map(roll => `<div class="roll-item">▹ ${roll}</div>`).join('')}
+            `;
+        }
+
+        // Perícias Functions
+        function addDefaultPericias() {
+            const defaults = [
+                { nome: 'Acrobacia', atributo: 'AGI' },
+                { nome: 'Atletismo', atributo: 'FOR' },
+                { nome: 'Ciências', atributo: 'PRE' },
+                { nome: 'Crime', atributo: 'AGI' },
+                { nome: 'Diplomacia', atributo: 'PRE' },
+                { nome: 'Enganação', atributo: 'PRE' },
+                { nome: 'Fortitude', atributo: 'FOR' },
+                { nome: 'Furtividade', atributo: 'AGI' },
+                { nome: 'Iniciativa', atributo: 'AGI' },
+                { nome: 'Intimidação', atributo: 'PRE' },
+                { nome: 'Intuição', atributo: 'PRE' },
+                { nome: 'Investigação', atributo: 'PRE' },
+                { nome: 'Luta', atributo: 'FOR' },
+                { nome: 'Medicina', atributo: 'PRE' },
+                { nome: 'Ocultismo', atributo: 'PRE' },
+                { nome: 'Percepção', atributo: 'PRE' },
+                { nome: 'Pilotagem', atributo: 'AGI' },
+                { nome: 'Pontaria', atributo: 'AGI' },
+                { nome: 'Profissão', atributo: 'PRE' },
+                { nome: 'Reflexos', atributo: 'AGI' },
+                { nome: 'Religião', atributo: 'PRE' },
+                { nome: 'Sobrevivência', atributo: 'PRE' },
+                { nome: 'Tática', atributo: 'PRE' },
+                { nome: 'Tecnologia', atributo: 'PRE' },
+                { nome: 'Vontade', atributo: 'PRE' }
+            ];
+
+            defaults.forEach(p => {
+                pericias.push({
+                    id: Date.now() + Math.random(),
+                    nome: p.nome,
+                    atributo: p.atributo,
+                    treino: false,
+                    bonus: 0
+                });
+            });
+
+            renderPericias();
+            saveData();
+            showToast('✓ Perícias padrão adicionadas!');
+        }
+
+        function showAddPericiaModal() {
+            editingPericiaId = null;
+            document.getElementById('periciaModalTitle').textContent = 'Adicionar Perícia';
+            document.getElementById('periciaNome').value = '';
+            document.getElementById('periciaAtributo').value = 'FOR';
+            document.getElementById('periciaModal').classList.add('active');
+        }
+
+        function closePericiaModal() {
+            document.getElementById('periciaModal').classList.remove('active');
+        }
+
+        function savePericias() {
+            const nome = document.getElementById('periciaNome').value.trim();
+            const atributo = document.getElementById('periciaAtributo').value;
+
+            if (!nome) return;
+
+            if (editingPericiaId) {
+                const pericia = pericias.find(p => p.id === editingPericiaId);
+                if (pericia) {
+                    pericia.nome = nome;
+                    pericia.atributo = atributo;
+                }
+            } else {
+                pericias.push({
+                    id: Date.now(),
+                    nome,
+                    atributo,
+                    treino: false,
+                    bonus: 0
+                });
+            }
+
+            renderPericias();
+            saveData();
+            closePericiaModal();
+        }
+
+        function togglePericiaTraining(id) {
+            const pericia = pericias.find(p => p.id === id);
+            if (pericia) {
+                pericia.treino = !pericia.treino;
+                renderPericias();
+                saveData();
+            }
+        }
+
+        function updatePericiaBonus(id, value) {
+            const pericia = pericias.find(p => p.id === id);
+            if (pericia) {
+                pericia.bonus = parseInt(value) || 0;
+                saveData();
+            }
+        }
+
+        function deletePericias(id) {
+            pericias = pericias.filter(p => p.id !== id);
+            renderPericias();
+            saveData();
+        }
+
+        function renderPericias() {
+            const container = document.getElementById('periciasList');
+            document.getElementById('periciaCount').textContent = `${pericias.length} perícia(s)`;
+            
+            // Show/hide default button
+            const btnPadrao = document.getElementById('btnPadraoPericias');
+            if (btnPadrao) {
+                btnPadrao.style.display = pericias.length === 0 ? 'block' : 'none';
+            }
+
+            if (pericias.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎲</div>
+                        <div class="empty-state-title">Nenhuma perícia cadastrada</div>
+                        <div class="empty-state-text">Adicione perícias manualmente ou use o conjunto padrão</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = pericias.map(p => `
+                <div class="pericia-item ${p.treino ? 'trained' : ''}">
+                    <div class="pericia-info">
+                        <div class="pericia-name">${p.nome}</div>
+                        <div class="pericia-attr">${p.atributo}</div>
+                    </div>
+                    <div class="pericia-controls">
+                        <input type="number" class="pericia-bonus" 
+                               value="${p.bonus || ''}" 
+                               placeholder="±"
+                               onchange="updatePericiaBonus(${p.id}, this.value)">
+                        <input type="checkbox" class="checkbox" 
+                               ${p.treino ? 'checked' : ''}
+                               onchange="togglePericiaTraining(${p.id})">
+                        <button class="icon-btn danger" onclick="deletePericias(${p.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Items Functions
+        function showAddItemModal() {
+            editingItemId = null;
+            document.getElementById('itemModalTitle').textContent = 'Adicionar Item';
+            document.getElementById('itemNome').value = '';
+            document.getElementById('itemQuantidade').value = '1';
+            document.getElementById('itemDescricao').value = '';
+            document.getElementById('itemModal').classList.add('active');
+        }
+
+        function showEditItemModal(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            editingItemId = id;
+            document.getElementById('itemModalTitle').textContent = 'Editar Item';
+            document.getElementById('itemNome').value = item.nome;
+            document.getElementById('itemQuantidade').value = item.quantidade;
+            document.getElementById('itemDescricao').value = item.descricao || '';
+            document.getElementById('itemModal').classList.add('active');
+        }
+
+        function closeItemModal() {
+            document.getElementById('itemModal').classList.remove('active');
+        }
+
+        function saveItem() {
+            const nome = document.getElementById('itemNome').value.trim();
+            const quantidade = document.getElementById('itemQuantidade').value.trim();
+            const descricao = document.getElementById('itemDescricao').value.trim();
+
+            if (!nome) return;
+
+            if (editingItemId) {
+                const item = items.find(i => i.id === editingItemId);
+                if (item) {
+                    item.nome = nome;
+                    item.quantidade = quantidade;
+                    item.descricao = descricao;
+                }
+            } else {
+                items.push({
+                    id: Date.now(),
+                    nome,
+                    quantidade,
+                    descricao
+                });
+            }
+
+            renderItems();
+            saveData();
+            closeItemModal();
+        }
+
+        function deleteItem(id) {
+            items = items.filter(i => i.id !== id);
+            renderItems();
+            saveData();
+        }
+
+        function renderItems() {
+            const container = document.getElementById('itemsList');
+            document.getElementById('itemCount').textContent = `${items.length} item(ns)`;
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <div class="empty-state-title">Inventário vazio</div>
+                        <div class="empty-state-text">Adicione itens, armas, equipamentos e outros objetos</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = items.map(item => `
+                <div class="item-card">
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${item.nome}</div>
+                            <div class="item-qty">Quantidade: ${item.quantidade}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="icon-btn" onclick="showEditItemModal(${item.id})">✏️</button>
+                            <button class="icon-btn danger" onclick="deleteItem(${item.id})">🗑️</button>
+                        </div>
+                    </div>
+                    ${item.descricao ? `<div style="margin-top: 8px; font-size: 0.95em;">${item.descricao}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Toast Function
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
